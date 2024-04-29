@@ -27,8 +27,18 @@ TOKENS = [
 
 @pytest.fixture
 def mock_token(request) -> dict:
-    refresh_token = request.node.get_closest_marker("refresh_token", True)
+    refresh_token = request.node.get_closest_marker("refresh_token", True).args[0]
     token = TOKENS[0].copy()
+    if not refresh_token:
+        token.pop("refresh_token")
+        token.pop("refresh_expires_in")
+    return token
+
+
+@pytest.fixture
+def mock_token2(request) -> dict:
+    refresh_token = request.node.get_closest_marker("refresh_token", True).args[0]
+    token = TOKENS[1].copy()
     if not refresh_token:
         token.pop("refresh_token")
         token.pop("refresh_expires_in")
@@ -42,8 +52,31 @@ async def mock_response(mock_token) -> aioresponses:
         yield mock
 
 
+@pytest.fixture
+async def mock_response_refresh(mock_token, mock_token2) -> aioresponses:
+    with aioresponses() as mock:
+        mock.post(TOKEN_ENDPOINT, status=200, payload=mock_token)
+        mock.post(TOKEN_ENDPOINT, status=200, payload=mock_token2)
+        yield mock
+
+
 async def assert_request_with_access_token(
     client: OAuth2Client, token: dict, responses: aioresponses
+):
+    # add mock response
+    responses.get(TEST_URL, status=200, body="Hello!")
+    response = await client.get(TEST_URL)
+    assert response.status == 200
+
+    responses.assert_called_with(
+        url=TEST_URL,
+        method="GET",
+        headers={"Authorization": f"Bearer {token['access_token']}"},
+    )
+
+
+async def assert_token_refresh(
+    client: OAuth2Client, token: dict, token2: dict, responses: aioresponses
 ):
     # add mock response
     responses.get(TEST_URL, status=200, body="Hello!")
