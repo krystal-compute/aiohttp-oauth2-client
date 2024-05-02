@@ -15,7 +15,7 @@ async def test_fetch_token(mock_token: dict, mock_response: aioresponses):
     ) as grant:
         await grant.fetch_token()
         assert grant.token.access_token == mock_token["access_token"]
-        assert mock_token.items() <= grant.token.items()
+        assert mock_token.items() <= grant.token.model_dump().items()
 
     # Access token request: https://datatracker.ietf.org/doc/html/rfc6749#autoid-47
     mock_response.assert_called_once_with(
@@ -37,7 +37,7 @@ async def test_fetch_token_optional_parameters(
     ) as grant:
         await grant.fetch_token()
         assert grant.token.access_token == mock_token["access_token"]
-        assert mock_token.items() <= grant.token.items()
+        assert mock_token.items() <= grant.token.model_dump().items()
 
     # Access token request: https://datatracker.ietf.org/doc/html/rfc6749#autoid-47
     mock_response.assert_called_once_with(
@@ -65,7 +65,7 @@ async def test_refresh_token(
         await grant.refresh_token()
 
         assert grant.token.access_token == mock_token2["access_token"]
-        assert mock_token2.items() <= grant.token.items()
+        assert mock_token2.items() <= grant.token.model_dump().items()
 
         # Refresh token grant: https://datatracker.ietf.org/doc/html/rfc6749#section-6
         mock_response_refresh.assert_called_with(

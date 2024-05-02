@@ -1,21 +1,16 @@
 import asyncio
-import enum
 from abc import abstractmethod
-from typing import Optional, Dict, Union
+from typing import Optional, Union
 
 import aiohttp
 from aiohttp.typedefs import LooseHeaders
 from yarl import URL
 
+from aiohttp_oauth2_client.models.request import (
+    AccessTokenRequest,
+    RefreshTokenAccessTokenRequest,
+)
 from aiohttp_oauth2_client.models.token import Token
-
-
-class GrantType(str, enum.Enum):
-    REFRESH_TOKEN = "refresh_token"
-    AUTHORIZATION_CODE = "authorization_code"
-    RESOURCE_OWNER_PASSWORD_CREDENTIALS = "password"
-    CLIENT_CREDENTIALS = "client_credentials"
-    DEVICE_CODE = "urn:ietf:params:oauth:grant-type:device_code"
 
 
 class OAuth2Grant:
@@ -32,7 +27,7 @@ class OAuth2Grant:
         :param kwargs: extra arguments used in token request
         """
         self.token_url = URL(token_url)
-        self.token = Token(token) if token else None
+        self.token = Token.model_validate(token) if token else None
         self.token_refresh_lock = asyncio.Lock()
         self.session = aiohttp.ClientSession()
         self.kwargs = kwargs
@@ -81,7 +76,7 @@ class OAuth2Grant:
         """
         Fetch an OAuth 2.0 token from the token endpoint and store it for subsequent use.
         """
-        self.token = Token(await self._fetch_token())
+        self.token = Token.model_validate(await self._fetch_token())
 
     @abstractmethod
     async def _fetch_token(self) -> dict:
@@ -95,16 +90,15 @@ class OAuth2Grant:
         """
         Obtain a new access token using the refresh token grant and store it for subsequent use.
         """
-        data = dict(
-            grant_type=GrantType.REFRESH_TOKEN,
+        access_token_request = RefreshTokenAccessTokenRequest(
             refresh_token=self.token.refresh_token,
             **self.kwargs,
         )
-        response = await self.execute_token_request(data)
-        self.token = Token(await response.json())
+        response = await self.execute_token_request(access_token_request)
+        self.token = Token.model_validate(await response.json())
 
-    async def execute_token_request(self, data: Dict[str, str]):
+    async def execute_token_request(self, data: AccessTokenRequest):
         return await self.session.post(
             url=self.token_url,
-            data=data,
+            data=data.model_dump(exclude_none=True),
         )

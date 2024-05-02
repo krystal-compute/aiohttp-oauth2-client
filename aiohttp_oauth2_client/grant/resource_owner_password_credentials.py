@@ -1,6 +1,9 @@
 from typing import Optional
 
-from aiohttp_oauth2_client.grant.common import OAuth2Grant, GrantType
+from aiohttp_oauth2_client.grant.common import OAuth2Grant
+from aiohttp_oauth2_client.models.request import (
+    ResourceOwnerPasswordCredentialsAccessTokenRequest,
+)
 
 
 class ResourceOwnerPasswordCredentialsGrant(OAuth2Grant):
@@ -17,12 +20,11 @@ class ResourceOwnerPasswordCredentialsGrant(OAuth2Grant):
         self.password = password
 
     async def _fetch_token(self) -> dict:
-        data = dict(
-            grant_type=GrantType.RESOURCE_OWNER_PASSWORD_CREDENTIALS,
+        access_token_request = ResourceOwnerPasswordCredentialsAccessTokenRequest(
             username=self.username,
             password=self.password,
             **self.kwargs,
         )
-        response = await self.execute_token_request(data)
+        response = await self.execute_token_request(access_token_request)
         response.raise_for_status()
         return await response.json()

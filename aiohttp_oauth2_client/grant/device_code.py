@@ -3,7 +3,12 @@ import time
 from typing import Optional, Union
 from yarl import URL
 
-from aiohttp_oauth2_client.grant.common import OAuth2Grant, GrantType
+from aiohttp_oauth2_client.grant.common import OAuth2Grant
+from aiohttp_oauth2_client.models.request import (
+    DeviceAuthorizationRequest,
+    DeviceAccessTokenRequest,
+)
+from aiohttp_oauth2_client.models.response import DeviceAuthorizationResponse
 
 
 class DeviceCodeGrant(OAuth2Grant):
@@ -16,26 +21,33 @@ class DeviceCodeGrant(OAuth2Grant):
     ):
         super().__init__(token_url, token, **kwargs)
         self.authorization_url = URL(authorization_url)
+        self.authorization_request = DeviceAuthorizationRequest.model_validate(kwargs)
 
-    async def fetch_token(self):
+    async def _fetch_token(self):
         time_start = time.time()
         device_code_url = self.authorization_url / "device"
-        response = await self.session.post(url=device_code_url, data=self.kwargs).json()
-        polling_interval = int(response.get("interval", 5))
-        expires_in = int(response["expires_in"])
-        device_code = response["device_code"]
-        data = dict(
-            grant_type=GrantType.DEVICE_CODE, device_code=device_code, **self.kwargs
+        async with self.session.post(
+            url=device_code_url,
+            data=self.authorization_request.model_dump(exclude_none=True),
+        ) as response:
+            device_authorization = DeviceAuthorizationResponse.model_validate(
+                await response.json()
+            )
+        token_request_data = DeviceAccessTokenRequest(
+            device_code_url=device_authorization.device_code, **self.kwargs
         )
         # TODO show message to user
 
         complete = False
-        while not complete and not time.time() > time_start + expires_in:
-            await asyncio.sleep(polling_interval)
+        while (
+            not complete
+            and not time.time() > time_start + device_authorization.expires_in
+        ):
+            await asyncio.sleep(device_authorization.interval)
             try:
-                token = self.execute_token_request(data)
+                token = await self.execute_token_request(token_request_data)
                 if token:
                     complete = True
-                    self.token = token
+                    return token
             except Exception:
                 pass

@@ -5,6 +5,7 @@ from aiohttp_oauth2_client.client import OAuth2Client
 
 TEST_URL = "https://example.com/protected"
 TOKEN_ENDPOINT = "https://sso.example.com/oauth2/token"
+AUTHORIZATION_ENDPOINT = "https://sso.example.com/oauth2/auth"
 TOKENS = [
     {
         "access_token": "2YotnFZFEjr1zCsicMWpAA",
@@ -27,7 +28,8 @@ TOKENS = [
 
 @pytest.fixture
 def mock_token(request) -> dict:
-    refresh_token = request.node.get_closest_marker("refresh_token", True).args[0]
+    marker_refresh_token = request.node.get_closest_marker("refresh_token")
+    refresh_token = marker_refresh_token.args[0] if marker_refresh_token else True
     token = TOKENS[0].copy()
     if not refresh_token:
         token.pop("refresh_token")
@@ -37,7 +39,8 @@ def mock_token(request) -> dict:
 
 @pytest.fixture
 def mock_token2(request) -> dict:
-    refresh_token = request.node.get_closest_marker("refresh_token", True).args[0]
+    marker_refresh_token = request.node.get_closest_marker("refresh_token")
+    refresh_token = marker_refresh_token.args[0] if marker_refresh_token else True
     token = TOKENS[1].copy()
     if not refresh_token:
         token.pop("refresh_token")
@@ -58,6 +61,12 @@ async def mock_response_refresh(mock_token, mock_token2) -> aioresponses:
         mock.post(TOKEN_ENDPOINT, status=200, payload=mock_token)
         mock.post(TOKEN_ENDPOINT, status=200, payload=mock_token2)
         yield mock
+
+
+@pytest.fixture
+async def mock_response_device_code(mock_token) -> aioresponses:
+    with aioresponses() as mock:
+        mock.post(AUTHORIZATION_ENDPOINT)
 
 
 async def assert_request_with_access_token(

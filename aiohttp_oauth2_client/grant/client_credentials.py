@@ -2,7 +2,8 @@ from typing import Optional, Union
 
 from yarl import URL
 
-from aiohttp_oauth2_client.grant.common import OAuth2Grant, GrantType
+from aiohttp_oauth2_client.grant.common import OAuth2Grant
+from aiohttp_oauth2_client.models.request import ClientCredentialsAccessTokenRequest
 
 
 class ClientCredentialsGrant(OAuth2Grant):
@@ -35,13 +36,10 @@ class ClientCredentialsGrant(OAuth2Grant):
         self.client_secret = client_secret
 
     async def _fetch_token(self):
-        data = dict(
-            grant_type=GrantType.CLIENT_CREDENTIALS,
-            client_id=self.client_id,
-            client_secret=self.client_secret,
-            **self.kwargs,
+        access_token_request = ClientCredentialsAccessTokenRequest(
+            client_id=self.client_id, client_secret=self.client_secret, **self.kwargs
         )
-        response = await self.execute_token_request(data)
+        response = await self.execute_token_request(access_token_request)
         return await response.json()
 
     async def refresh_token(self):
