@@ -18,12 +18,16 @@ class DeviceCodeGrant(OAuth2Grant):
         self,
         token_url: Union[str, URL],
         authorization_url: Union[str, URL],
+        client_id: str,
         token: Optional[dict] = None,
         **kwargs,
     ):
         super().__init__(token_url, token, **kwargs)
         self.authorization_url = URL(authorization_url)
-        self.authorization_request = DeviceAuthorizationRequest.model_validate(kwargs)
+        self.client_id = client_id
+        self.authorization_request = DeviceAuthorizationRequest(
+            client_id=client_id, **kwargs
+        )
 
     async def _fetch_token(self) -> Token:
         time_start = time.time()
@@ -36,7 +40,9 @@ class DeviceCodeGrant(OAuth2Grant):
                 await response.json()
             )
         token_request_data = DeviceAccessTokenRequest(
-            device_code=device_authorization.device_code, **self.kwargs
+            device_code=device_authorization.device_code,
+            client_id=self.client_id,
+            **self.kwargs,
         )
         _txt = (
             f"Visit {device_authorization.verification_uri_complete} to authenticate"

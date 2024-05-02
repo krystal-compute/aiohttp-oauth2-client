@@ -31,7 +31,7 @@ class OAuth2Grant:
         """
         self.token_url = URL(token_url)
         self.token = Token.model_validate(token) if token else None
-        self.token_refresh_lock = asyncio.Lock()
+        self.lock = asyncio.Lock()
         self.session = aiohttp.ClientSession()
         self.kwargs = kwargs
 
@@ -47,16 +47,12 @@ class OAuth2Grant:
         """
         await self.session.close()
 
-    # @property
-    # def token(self) -> OAuth2Token:
-    #     return self.token_auth.token
-    #
-    # @token.setter
-    # def token(self, token):
-    #     self.token_auth.set_token(token)
-
     async def ensure_active_token(self):
-        async with self.token_refresh_lock:
+        """
+        Ensure that the stored access token is still active.
+        If this is not the case, the token will be refreshed.
+        """
+        async with self.lock:
             if self.token.is_expired():
                 await self.refresh_token()
 
@@ -68,9 +64,10 @@ class OAuth2Grant:
         :return: updated HTTP request headers
         """
         headers = dict(headers) if headers else {}
-        if not self.token:
-            # request initial token
-            await self.fetch_token()
+        async with self.lock:
+            if not self.token:
+                # request initial token
+                await self.fetch_token()
         await self.ensure_active_token()
         headers["Authorization"] = f"Bearer {self.token.access_token}"
         return headers
@@ -104,7 +101,7 @@ class OAuth2Grant:
         Execute a token request with the provided data.
 
         :param data: token request data
-        :return: token
+        :return: OAuth 2.0 Token
         :raises OAuth2Error: if the token request fails
         :raises ClientResponseError: if the HTTP error cannot be parsed into a OAuth2 error response
         """
