@@ -4,12 +4,15 @@ from typing import Optional, Union
 
 import aiohttp
 from aiohttp.typedefs import LooseHeaders
+from pydantic import ValidationError
 from yarl import URL
 
+from aiohttp_oauth2_client.models.errors import OAuth2Error
 from aiohttp_oauth2_client.models.request import (
     AccessTokenRequest,
     RefreshTokenAccessTokenRequest,
 )
+from aiohttp_oauth2_client.models.response import ErrorResponse
 from aiohttp_oauth2_client.models.token import Token
 
 
@@ -76,10 +79,10 @@ class OAuth2Grant:
         """
         Fetch an OAuth 2.0 token from the token endpoint and store it for subsequent use.
         """
-        self.token = Token.model_validate(await self._fetch_token())
+        self.token = await self._fetch_token()
 
     @abstractmethod
-    async def _fetch_token(self) -> dict:
+    async def _fetch_token(self) -> Token:
         """
         Fetch an OAuth 2.0 token from the token endpoint.
         :return: OAuth 2.0 Token
@@ -94,11 +97,26 @@ class OAuth2Grant:
             refresh_token=self.token.refresh_token,
             **self.kwargs,
         )
-        response = await self.execute_token_request(access_token_request)
-        self.token = Token.model_validate(await response.json())
+        self.token = await self.execute_token_request(access_token_request)
 
-    async def execute_token_request(self, data: AccessTokenRequest):
-        return await self.session.post(
+    async def execute_token_request(self, data: AccessTokenRequest) -> Token:
+        """
+        Execute a token request with the provided data.
+
+        :param data: token request data
+        :return: token
+        :raises OAuth2Error: if the token request fails
+        :raises ClientResponseError: if the HTTP error cannot be parsed into a OAuth2 error response
+        """
+        async with self.session.post(
             url=self.token_url,
             data=data.model_dump(exclude_none=True),
-        )
+        ) as response:
+            if not response.ok:
+                try:
+                    raise OAuth2Error(
+                        ErrorResponse.model_validate(await response.json())
+                    )
+                except ValidationError:
+                    response.raise_for_status()
+            return Token.model_validate(await response.json())

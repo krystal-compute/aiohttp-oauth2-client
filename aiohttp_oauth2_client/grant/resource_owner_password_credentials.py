@@ -4,6 +4,7 @@ from aiohttp_oauth2_client.grant.common import OAuth2Grant
 from aiohttp_oauth2_client.models.request import (
     ResourceOwnerPasswordCredentialsAccessTokenRequest,
 )
+from aiohttp_oauth2_client.models.token import Token
 
 
 class ResourceOwnerPasswordCredentialsGrant(OAuth2Grant):
@@ -19,12 +20,11 @@ class ResourceOwnerPasswordCredentialsGrant(OAuth2Grant):
         self.username = username
         self.password = password
 
-    async def _fetch_token(self) -> dict:
+    async def _fetch_token(self) -> Token:
         access_token_request = ResourceOwnerPasswordCredentialsAccessTokenRequest(
             username=self.username,
             password=self.password,
             **self.kwargs,
         )
-        response = await self.execute_token_request(access_token_request)
-        response.raise_for_status()
-        return await response.json()
+        token = await self.execute_token_request(access_token_request)
+        return token

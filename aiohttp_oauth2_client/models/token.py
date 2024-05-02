@@ -37,9 +37,6 @@ class Token(BaseModel):
                 data["expires_at"] = int(time.time()) + data["expires_in"]
         return data
 
-        # if not self.expires_at:
-        #     self.expires_at = int(time.time()) + self.expires_in
-
     def is_expired(self, early_expiry: int = 30) -> bool:
         if not self.expires_at:
             raise ValueError("No token expiration information")

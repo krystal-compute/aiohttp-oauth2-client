@@ -4,6 +4,7 @@ from yarl import URL
 
 from aiohttp_oauth2_client.grant.common import OAuth2Grant
 from aiohttp_oauth2_client.models.request import ClientCredentialsAccessTokenRequest
+from aiohttp_oauth2_client.models.token import Token
 
 
 class ClientCredentialsGrant(OAuth2Grant):
@@ -35,12 +36,11 @@ class ClientCredentialsGrant(OAuth2Grant):
         self.client_id = client_id
         self.client_secret = client_secret
 
-    async def _fetch_token(self):
+    async def _fetch_token(self) -> Token:
         access_token_request = ClientCredentialsAccessTokenRequest(
             client_id=self.client_id, client_secret=self.client_secret, **self.kwargs
         )
-        response = await self.execute_token_request(access_token_request)
-        return await response.json()
+        return await self.execute_token_request(access_token_request)
 
     async def refresh_token(self):
         if "refresh_token" in self.token:
