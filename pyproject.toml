@@ -10,7 +10,6 @@ dependencies = [
 ]
 requires-python = ">=3.8"
 
-
 [project.optional-dependencies]
 dev = [
     "pre-commit",
@@ -19,6 +18,9 @@ dev = [
     "pytest-asyncio",
     "aioresponses"
 ]
+
+[tool.setuptools.packages.find]
+include = ["aiohttp_oauth2_client*"]
 
 [build-system]
 requires = ["setuptools", "wheel"]
