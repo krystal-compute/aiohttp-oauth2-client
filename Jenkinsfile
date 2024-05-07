@@ -6,4 +6,5 @@ pythonPipeline {
   create_tag_job          = true
   upload_pypi             = true
   run_tests               = true
+  extras_require          = 'dev'
 }
