@@ -6,6 +6,7 @@ from aiohttp_oauth2_client.client import OAuth2Client
 TEST_URL = "https://example.com/protected"
 TOKEN_ENDPOINT = "https://sso.example.com/oauth2/token"
 AUTHORIZATION_ENDPOINT = "https://sso.example.com/oauth2/auth"
+DEVICE_AUTHORIZATION_ENDPOINT = "https://sso.example.com/oauth2/auth/device"
 TOKENS = [
     {
         "access_token": "2YotnFZFEjr1zCsicMWpAA",
@@ -61,12 +62,6 @@ async def mock_response_refresh(mock_token, mock_token2) -> aioresponses:
         mock.post(TOKEN_ENDPOINT, status=200, payload=mock_token)
         mock.post(TOKEN_ENDPOINT, status=200, payload=mock_token2)
         yield mock
-
-
-@pytest.fixture
-async def mock_response_device_code(mock_token) -> aioresponses:
-    with aioresponses() as mock:
-        mock.post(AUTHORIZATION_ENDPOINT)
 
 
 async def assert_request_with_access_token(

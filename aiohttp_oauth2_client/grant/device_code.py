@@ -19,20 +19,19 @@ class DeviceCodeGrant(OAuth2Grant):
     def __init__(
         self,
         token_url: Union[str, URL],
-        authorization_url: Union[str, URL],
+        device_authorization_url: Union[str, URL],
         client_id: str,
         token: Optional[dict] = None,
         pkce: bool = False,
         **kwargs,
     ):
         super().__init__(token_url, token, **kwargs)
-        self.authorization_url = URL(authorization_url)
+        self.device_authorization_url = URL(device_authorization_url)
         self.client_id = client_id
         self.pkce = PKCE() if pkce else None
 
     async def _fetch_token(self) -> Token:
         time_start = time.time()
-        device_code_url = self.authorization_url / "device"
 
         if self.pkce:
             authorization_request = DeviceAuthorizationRequestPKCE(
@@ -47,7 +46,7 @@ class DeviceCodeGrant(OAuth2Grant):
             )
 
         async with self.session.post(
-            url=device_code_url,
+            url=self.device_authorization_url,
             data=authorization_request.model_dump(exclude_none=True),
         ) as response:
             response.raise_for_status()
