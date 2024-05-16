@@ -1,11 +1,13 @@
 import asyncio
 import contextlib
+import time
 from typing import Optional, Union
 
 import aiohttp.web
 from yarl import URL
 
 from aiohttp_oauth2_client.grant.common import OAuth2Grant
+from aiohttp_oauth2_client.models.errors import AuthError
 from aiohttp_oauth2_client.models.request import (
     AuthorizationRequest,
     AuthorizationCodeAccessTokenRequest,
@@ -26,6 +28,8 @@ class AuthorizationCodeGrant(OAuth2Grant):
     https://datatracker.ietf.org/doc/html/rfc6749#section-4.1
     """
 
+    timeout = 300
+
     def __init__(
         self,
         token_url: Union[str, URL],
@@ -41,11 +45,15 @@ class AuthorizationCodeGrant(OAuth2Grant):
         self.pkce = PKCE() if pkce else None
 
     async def _fetch_token(self) -> Token:
-        async with _web_server() as state:
+        time_start = time.time()
+        async with _web_server() as (socket_info, state):
+            redirect_uri = URL.build(
+                scheme="http", host="localhost", port=socket_info[1], path="/callback"
+            )
             if self.pkce:
                 authorization_request = AuthorizationRequestPKCE(
                     client_id=self.client_id,
-                    redirect_uri="http://localhost:8080/callback",
+                    redirect_uri=str(redirect_uri),
                     code_challenge=self.pkce.code_challenge,
                     code_challenge_method=self.pkce.code_challenge_method,
                     **self.kwargs,
@@ -53,15 +61,17 @@ class AuthorizationCodeGrant(OAuth2Grant):
             else:
                 authorization_request = AuthorizationRequest(
                     client_id=self.client_id,
-                    redirect_uri="http://localhost:8080/callback",
+                    redirect_uri=str(redirect_uri),
                     **self.kwargs,
                 )
             full_authz_url = self.authorization_url % authorization_request.model_dump(
                 exclude_none=True
             )
             webbrowser.open(str(full_authz_url))
-            while not state:
+            while not state and not time.time() > time_start + self.timeout:
                 await asyncio.sleep(1)
+            if not state:
+                raise AuthError("Authorization timed out.")
             authorization = AuthorizationResponse.model_validate(state)
 
         token_request = AuthorizationCodeAccessTokenRequest(
@@ -95,7 +105,8 @@ async def _web_server():
     server = aiohttp.web.Server(_request_handler)
     runner = aiohttp.web.ServerRunner(server)
     await runner.setup()
-    site = aiohttp.web.TCPSite(runner, port=8080)
+    site = aiohttp.web.TCPSite(runner, port=0)
     await site.start()
-    yield state
+    socket_info = site._server.sockets[0].getsockname()
+    yield socket_info, state
     await site.stop()
