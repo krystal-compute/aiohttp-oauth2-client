@@ -13,7 +13,7 @@ from aiohttp_oauth2_client.models.request import (
 )
 from aiohttp_oauth2_client.models.response import AuthorizationResponse
 from aiohttp_oauth2_client.models.token import Token
-from aiohttp_oauth2_client.pkce import PKCE
+from aiohttp_oauth2_client.models.pkce import PKCE
 import webbrowser
 
 
