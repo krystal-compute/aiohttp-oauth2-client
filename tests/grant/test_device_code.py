@@ -110,6 +110,42 @@ async def test_refresh_token(
         )
 
 
+async def test_pkce(mock_token: dict, mock_responses: aioresponses):
+    add_device_authorization_request(mock_responses, device_authorization_response)
+    add_token_request(mock_responses, mock_token)
+    async with DeviceCodeGrant(
+        token_url=TOKEN_ENDPOINT,
+        device_authorization_url=DEVICE_AUTHORIZATION_ENDPOINT,
+        client_id=CLIENT_ID,
+        pkce=True,
+    ) as grant:
+        await grant.fetch_token()
+        assert grant.token.access_token == mock_token["access_token"]
+        assert mock_token.items() <= grant.token.model_dump().items()
+
+        # Device authorization request: https://datatracker.ietf.org/doc/html/rfc8628#section-3.1
+        mock_responses.assert_called_with(
+            url=DEVICE_AUTHORIZATION_ENDPOINT,
+            method="POST",
+            data={
+                "client_id": CLIENT_ID,
+                "code_challenge": grant.pkce.code_challenge.decode("utf-8"),
+                "code_challenge_method": "S256",
+            },
+        )
+        # Device access token request: https://datatracker.ietf.org/doc/html/rfc8628#section-3.4
+        mock_responses.assert_called_with(
+            url=TOKEN_ENDPOINT,
+            method="POST",
+            data={
+                "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
+                "device_code": DEVICE_CODE,
+                "client_id": CLIENT_ID,
+                "code_verifier": grant.pkce.code_verifier.decode("utf-8"),
+            },
+        )
+
+
 async def test_client(mock_token: dict, mock_responses: aioresponses):
     add_device_authorization_request(mock_responses, device_authorization_response)
     add_token_request(mock_responses, mock_token)
