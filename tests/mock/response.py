@@ -1,6 +1,6 @@
 from aioresponses import aioresponses
 
-from constants import TOKEN_ENDPOINT
+from ..constants import TOKEN_ENDPOINT
 
 
 def add_token_request(mock: aioresponses, token: dict):

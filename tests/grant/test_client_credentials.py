@@ -4,7 +4,7 @@ from aioresponses import aioresponses
 from aiohttp_oauth2_client.client import OAuth2Client
 from aiohttp_oauth2_client.grant.client_credentials import ClientCredentialsGrant
 from ..conftest import assert_request_with_access_token
-from constants import TOKEN_ENDPOINT
+from ..constants import TOKEN_ENDPOINT
 from ..mock.response import add_token_request
 
 CLIENT_ID = "test-client"
