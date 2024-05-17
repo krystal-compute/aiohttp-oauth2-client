@@ -34,7 +34,7 @@ def mock_token2(request) -> dict:
 
 @pytest.fixture
 async def mock_responses() -> aioresponses:
-    with aioresponses(passthrough=["http://localhost"]) as mock:
+    with aioresponses(passthrough=["http://localhost", "http://0.0.0.0"]) as mock:
         yield mock
 
 
