@@ -16,6 +16,8 @@ dev = [
     "ruff",
     "pytest",
     "pytest-asyncio",
+    "pytest-mock",
+    "nest-asyncio",
     "aioresponses"
 ]
 
