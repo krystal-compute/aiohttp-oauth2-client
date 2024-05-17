@@ -2,7 +2,12 @@ import pytest
 from aioresponses import aioresponses
 
 from aiohttp_oauth2_client.client import OAuth2Client
+from .mock.webbrowser import mock_browser_side_effect
 from .constants import TEST_URL, TOKENS
+import asyncio
+import nest_asyncio
+
+nest_asyncio.apply()
 
 
 @pytest.fixture
@@ -31,6 +36,14 @@ def mock_token2(request) -> dict:
 async def mock_responses() -> aioresponses:
     with aioresponses(passthrough=["http://localhost"]) as mock:
         yield mock
+
+
+@pytest.fixture
+async def mock_browser(mocker):
+    browser = mocker.patch("webbrowser.open")
+    loop = asyncio.get_event_loop()
+    browser.side_effect = lambda x: loop.run_until_complete(mock_browser_side_effect(x))
+    return browser
 
 
 async def assert_request_with_access_token(
