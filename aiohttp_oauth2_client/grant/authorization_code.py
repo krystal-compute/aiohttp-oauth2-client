@@ -28,7 +28,7 @@ class AuthorizationCodeGrant(OAuth2Grant):
     https://datatracker.ietf.org/doc/html/rfc6749#section-4.1
     """
 
-    timeout = 300
+    timeout: int = 300
 
     def __init__(
         self,
@@ -37,16 +37,18 @@ class AuthorizationCodeGrant(OAuth2Grant):
         client_id: str,
         token: Optional[dict] = None,
         pkce: bool = False,
+        _web_server_port: Optional[int] = None,
         **kwargs,
     ):
         super().__init__(token_url, token, **kwargs)
         self.authorization_url = URL(authorization_url)
         self.client_id = client_id
         self.pkce = PKCE() if pkce else None
+        self._web_server_port = _web_server_port
 
     async def _fetch_token(self) -> Token:
         time_start = time.time()
-        async with _web_server() as (socket_info, state):
+        async with _web_server(port=self._web_server_port or 0) as (socket_info, state):
             redirect_uri = URL.build(
                 scheme="http", host="localhost", port=socket_info[1], path="/callback"
             )
@@ -85,7 +87,7 @@ class AuthorizationCodeGrant(OAuth2Grant):
 
 
 @contextlib.asynccontextmanager
-async def _web_server():
+async def _web_server(port: int):
     """
     Launch a web server to handle the redirect after the authorization request.
     Stores the authorization code in the state.
@@ -105,7 +107,7 @@ async def _web_server():
     server = aiohttp.web.Server(_request_handler)
     runner = aiohttp.web.ServerRunner(server)
     await runner.setup()
-    site = aiohttp.web.TCPSite(runner, port=0)
+    site = aiohttp.web.TCPSite(runner, port=port)
     await site.start()
     socket_info = site._server.sockets[0].getsockname()
     yield socket_info, state

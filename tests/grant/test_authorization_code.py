@@ -20,6 +20,7 @@ async def test_fetch_token(
         token_url=TOKEN_ENDPOINT,
         authorization_url=AUTHORIZATION_ENDPOINT,
         client_id=CLIENT_ID,
+        _web_server_port=8080,
     ) as grant:
         await grant.fetch_token()
         assert grant.token.access_token == mock_token["access_token"]
@@ -56,6 +57,7 @@ async def test_refresh_token(
         token_url=TOKEN_ENDPOINT,
         authorization_url=AUTHORIZATION_ENDPOINT,
         client_id=CLIENT_ID,
+        _web_server_port=8080,
     ) as grant:
         await grant.fetch_token()
         await grant.refresh_token()
@@ -80,6 +82,7 @@ async def test_pkce(mock_token: dict, mock_responses: aioresponses, mock_browser
         authorization_url=AUTHORIZATION_ENDPOINT,
         client_id=CLIENT_ID,
         pkce=True,
+        _web_server_port=8080,
     ) as grant:
         await grant.fetch_token()
         assert grant.token.access_token == mock_token["access_token"]
@@ -111,6 +114,7 @@ async def test_client(mock_token: dict, mock_responses: aioresponses, mock_brows
         token_url=TOKEN_ENDPOINT,
         authorization_url=AUTHORIZATION_ENDPOINT,
         client_id=CLIENT_ID,
+        _web_server_port=8080,
     ) as grant, OAuth2Client(grant) as client:
         await assert_request_with_access_token(client, mock_token, mock_responses)
 
@@ -124,6 +128,7 @@ async def test_client_refresh(
         token_url=TOKEN_ENDPOINT,
         authorization_url=AUTHORIZATION_ENDPOINT,
         client_id=CLIENT_ID,
+        _web_server_port=8080,
     ) as grant, OAuth2Client(grant) as client:
         await assert_request_with_access_token(client, mock_token, mock_responses)
         grant.token.expires_at = 1
