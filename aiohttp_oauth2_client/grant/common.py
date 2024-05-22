@@ -18,7 +18,7 @@ from aiohttp_oauth2_client.models.token import Token
 
 class OAuth2Grant:
     """
-    Generic OAuth2 Grant class.
+    Generic OAuth 2.0 Grant class.
     """
 
     def __init__(

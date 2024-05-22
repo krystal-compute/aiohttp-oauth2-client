@@ -20,6 +20,11 @@ dev = [
     "nest-asyncio",
     "aioresponses"
 ]
+docs = [
+    "sphinx~=7.3.7",
+    "furo",
+#    "sphinx-autodoc-typehints"
+]
 
 [tool.setuptools.packages.find]
 include = ["aiohttp_oauth2_client*"]
