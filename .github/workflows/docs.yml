@@ -1,0 +1,19 @@
+name: Documentation pipeline
+on:
+  push:
+    branches:
+      - main
+jobs:
+  doc:
+    name: '📓 Docs'
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: '🧰 Checkout'
+        uses: actions/checkout@v3
+
+      - name: '📓 BuildTheDocs (BTD)'
+        uses: buildthedocs/btd@v0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          skip-deploy: github.event_name == 'pull_request'

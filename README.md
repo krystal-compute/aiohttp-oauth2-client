@@ -3,6 +3,7 @@ This package adds support for OAuth 2.0 authorization to the `ClientSession` cla
 It handles retrieving access tokens and injects them in the Authorization header of HTTP requests as a Bearer token.
 
 **Features**:
+* Ease of use
 * Supported OAuth2 grants:
   * [Resource Owner Password Credentials](https://datatracker.ietf.org/doc/html/rfc6749#section-4.3)
   * [Client Credentials](https://datatracker.ietf.org/doc/html/rfc6749#section-4.4)
@@ -13,6 +14,7 @@ It handles retrieving access tokens and injects them in the Authorization header
 
 
 ## Installation
+The pacakge is available on [PyPi](https://pypi.org/project/aiohttp-oauth2-client) and can be installed using `pip`:
 ```shell
 pip install aiohttp-oauth2-client
 ``` 
@@ -58,4 +60,17 @@ pre-commit install
 You can also run the pre-commit checks manually with the following command:
 ```shell
 pre-commit run --all-files
+```
+
+### Build the docs
+This repository uses Sphinx to generate documentation for the Python package. 
+To build the documentation, first install the required dependencies via the extra `docs`:
+```shell
+pip install -e .[docs]
+```
+
+Then go to the documentation directory and build the docs:
+```shell
+cd docs/
+make html
 ```

@@ -5,6 +5,20 @@
 
 ``aiohttp-oauth2-client``: OAuth2 support for ``aiohttp`` client
 ================================================================
+This package adds support for OAuth 2.0 authorization to the ``ClientSession`` class of the ``aiohttp`` library.
+It handles retrieving access tokens and injects them in the Authorization header of HTTP requests as a Bearer token.
+
+**Features**:
+
+* Ease of use
+* Supported OAuth2 grants:
+
+  * `Resource Owner Password Credentials <https://datatracker.ietf.org/doc/html/rfc6749#section-4.3>`_
+  * `Client Credentials <https://datatracker.ietf.org/doc/html/rfc6749#section-4.4>`_
+  * `Authorization Code (+ PKCE) <https://datatracker.ietf.org/doc/html/rfc6749#section-4.1>`_
+  * `Device Code (+ PKCE) <https://datatracker.ietf.org/doc/html/rfc8628>`_
+* Automatic (lazy) refresh of tokens
+* Extensible code architecture
 
 .. toctree::
    :maxdepth: 2

@@ -1,8 +1,11 @@
 [project]
 name = "aiohttp-oauth2-client"
 version = "0.1.0"
-description = ""
+description = "OAuth2 support for aiohttp client"
 authors = [{name = "Stijn Caerts", email = "stijn.caerts@vito.be"}]
+readme = "README.md"
+license = "LICENSE"
+keywords = ["oauth2", "aiohttp"]
 dependencies = [
     "aiohttp~=3.8.4",
     "pydantic~=2.7.1",
@@ -23,8 +26,15 @@ dev = [
 docs = [
     "sphinx~=7.3.7",
     "furo",
-    "autodoc_pydantic"
+    "autodoc_pydantic",
+    "sphinx-copybutton"
 ]
+
+[project.urls]
+"Homepage" = "https://github.com/VITObelgium/aiohttp-oauth2-client"
+"Documentation" = "https://vitobelgium.github.io/aiohttp-oauth2-client/"
+"Source" = "https://github.com/VITObelgium/aiohttp-oauth2-client.git"
+"Issues" = "https://github.com/VITObelgium/aiohttp-oauth2-client/issues"
 
 [tool.setuptools.packages.find]
 include = ["aiohttp_oauth2_client*"]
