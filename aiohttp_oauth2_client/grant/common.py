@@ -103,7 +103,7 @@ class OAuth2Grant:
         :param data: token request data
         :return: OAuth 2.0 Token
         :raises OAuth2Error: if the token request fails
-        :raises ClientResponseError: if the HTTP error cannot be parsed into a OAuth2 error response
+        :raises aiohttp.ClientResponseError: if the HTTP error cannot be parsed as an OAuth 2.0 error response
         """
         async with self.session.post(
             url=self.token_url,

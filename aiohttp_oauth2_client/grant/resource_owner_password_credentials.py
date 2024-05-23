@@ -8,6 +8,12 @@ from aiohttp_oauth2_client.models.token import Token
 
 
 class ResourceOwnerPasswordCredentialsGrant(OAuth2Grant):
+    """
+    OAuth 2.0 Resource Owner Password Credentials grant.
+
+    Use the username and password of the resource owner to obatain an access token.
+    """
+
     def __init__(
         self,
         token_url: str,
@@ -16,6 +22,13 @@ class ResourceOwnerPasswordCredentialsGrant(OAuth2Grant):
         token: Optional[dict] = None,
         **kwargs,
     ):
+        """
+
+        :param token_url: OAuth 2.0 Token URL
+        :param username: username of the resource owner
+        :param password: password of the resource owner
+        :param token: OAuth 2.0 Token
+        """
         super().__init__(token_url, token, **kwargs)
         self.username = username
         self.password = password

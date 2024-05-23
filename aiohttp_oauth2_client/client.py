@@ -14,7 +14,6 @@ class OAuth2Client(aiohttp.ClientSession):
 
     def __init__(self, grant: OAuth2Grant, **kwargs):
         """
-
         :param grant: OAuth2Grant object providing an OAuth2 grant implementation.
         """
         super().__init__(**kwargs)

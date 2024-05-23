@@ -23,7 +23,7 @@ dev = [
 docs = [
     "sphinx~=7.3.7",
     "furo",
-#    "sphinx-autodoc-typehints"
+    "autodoc_pydantic"
 ]
 
 [tool.setuptools.packages.find]

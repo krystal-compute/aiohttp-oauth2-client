@@ -21,7 +21,7 @@ import webbrowser
 
 class AuthorizationCodeGrant(OAuth2Grant):
     """
-    OAuth2 Authorization Code grant.
+    OAuth 2.0 Authorization Code grant.
 
     Use a browser login to request an authorization code, which is then used to request an access token.
 
@@ -40,6 +40,15 @@ class AuthorizationCodeGrant(OAuth2Grant):
         _web_server_port: Optional[int] = None,
         **kwargs,
     ):
+        """
+
+        :param token_url: OAuth 2.0 Token URL
+        :param authorization_url: OAuth 2.0 Authorization URL
+        :param client_id: client identifier
+        :param token: OAuth 2.0 Token
+        :param pkce: use PKCE
+        :param _web_server_port: web server port for handling redirect callback, leave empty for random available port
+        """
         super().__init__(token_url, token, **kwargs)
         self.authorization_url = URL(authorization_url)
         self.client_id = client_id

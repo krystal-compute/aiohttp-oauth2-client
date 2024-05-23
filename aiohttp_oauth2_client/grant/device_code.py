@@ -16,6 +16,13 @@ from aiohttp_oauth2_client.models.pkce import PKCE
 
 
 class DeviceCodeGrant(OAuth2Grant):
+    """
+    OAuth 2.0 Device Code grant.
+
+    Obtain user authorization on devices with limited input capabilities or lack a suitable browser to handle an interactive log in procedure.
+    The user is instructed to review the authorization request on a secondary device, which does have the requisite input and browser capabilities to complete the user interaction.
+    """
+
     def __init__(
         self,
         token_url: Union[str, URL],
@@ -25,6 +32,14 @@ class DeviceCodeGrant(OAuth2Grant):
         pkce: bool = False,
         **kwargs,
     ):
+        """
+
+        :param token_url: OAuth 2.0 Token URL
+        :param device_authorization_url: OAuth 2.0 Device Authorization URL
+        :param client_id: client identifier
+        :param token: OAuth 2.0 Token
+        :param pkce: use PKCE
+        """
         super().__init__(token_url, token, **kwargs)
         self.device_authorization_url = URL(device_authorization_url)
         self.client_id = client_id

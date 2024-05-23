@@ -5,6 +5,8 @@ Grants
 The :obj:`~aiohttp_oauth2_client.grant.common.OAuth2Grant` abstract class defines the high-level interface for OAuth 2.0 grant implementations.
 The grant object should be used as an async context manager.
 
+Common
+------
 .. automodule:: aiohttp_oauth2_client.grant.common
    :members:
    :undoc-members:

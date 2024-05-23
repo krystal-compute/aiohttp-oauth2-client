@@ -13,10 +13,17 @@ author = "Stijn Caerts"
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.viewcode", "sphinx.ext.intersphinx"]
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.intersphinx",
+    "sphinxcontrib.autodoc_pydantic",
+]
 autodoc_preserve_defaults = True
 autoclass_content = "both"
 autodoc_typehints = "both"
+# autodoc_pydantic_model_show_validator_summary = False
+autodoc_pydantic_field_list_validators = False
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
@@ -25,6 +32,7 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "aiohttp": ("https://docs.aiohttp.org/en/stable", None),
     "yarl": ("https://yarl.aio-libs.org/en/stable/", None),
+    "pydantic": ("https://docs.pydantic.dev/latest/", None),
 }
 
 # -- Options for HTML output -------------------------------------------------
