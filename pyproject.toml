@@ -4,7 +4,6 @@ version = "0.1.0"
 description = "OAuth2 support for aiohttp client"
 authors = [{name = "Stijn Caerts", email = "stijn.caerts@vito.be"}]
 readme = "README.md"
-license = "LICENSE"
 keywords = ["oauth2", "aiohttp"]
 dependencies = [
     "aiohttp~=3.8.4",
