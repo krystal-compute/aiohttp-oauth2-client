@@ -1,6 +1,7 @@
 # `aiohttp-oauth2-client`: OAuth2 support for `aiohttp` client
 
-This package adds support for OAuth 2.0 authorization to the `ClientSession` class of the [`aiohttp`](https://docs.aiohttp.org/en/stable/) library.
+This package adds support for OAuth 2.0 authorization to the `ClientSession` class of
+the [`aiohttp`](https://docs.aiohttp.org/en/stable/) library.
 It handles retrieving access tokens and injects them in the Authorization header of HTTP requests as a Bearer token.
 
 **Features**:
@@ -68,11 +69,11 @@ access token.
 
 | Parameter           | Required | Description                 |
 |---------------------|----------|-----------------------------|
-| `token_url`         | [x]      | OAuth 2.0 Token URL         |
-| `authorization_url` | [x]      | OAuth 2.0 Authorization URL | 
-| `client_id`         | [x]      | client identifier           |
-| `token`             | [ ]      | OAuth 2.0 Token             | 
-| `pkce`              | [ ]      | use PKCE                    | 
+| `token_url`         | Yes      | OAuth 2.0 Token URL         |
+| `authorization_url` | Yes      | OAuth 2.0 Authorization URL | 
+| `client_id`         | Yes      | client identifier           |
+| `token`             | No       | OAuth 2.0 Token             | 
+| `pkce`              | No       | use PKCE                    | 
 
 ##### Example
 
@@ -99,10 +100,10 @@ Use client credentials to obtain an access token.
 
 | Parameter       | Required | Description         |
 |-----------------|----------|---------------------|
-| `token_url`     | [x]      | OAuth 2.0 Token URL | 
-| `client_id`     | [x]      | client identifier   |
-| `client_secret` | [x]      | client secret       |
-| `token`         | [ ]      | OAuth 2.0 token     |
+| `token_url`     | Yes      | OAuth 2.0 Token URL | 
+| `client_id`     | Yes      | client identifier   |
+| `client_secret` | Yes      | client secret       |
+| `token`         | No       | OAuth 2.0 token     |
 
 ##### Example
 
@@ -131,11 +132,11 @@ and browser capabilities to complete the user interaction.
 
 | Parameter                  | Required | Description                        | 
 |----------------------------|----------|------------------------------------|
-| `token_url`                | [x]      | OAuth 2.0 Token URL                |
-| `device_authorization_url` | [x]      | OAuth 2.0 Device Authorization URL |
-| `client_id`                | [x]      | client identifier                  |
-| `token`                    | [ ]      | OAuth 2.0 Token                    | 
-| `pkce`                     | [ ]      | use PKCE                           |
+| `token_url`                | Yes      | OAuth 2.0 Token URL                |
+| `device_authorization_url` | Yes      | OAuth 2.0 Device Authorization URL |
+| `client_id`                | Yes      | client identifier                  |
+| `token`                    | No       | OAuth 2.0 Token                    | 
+| `pkce`                     | No       | use PKCE                           |
 
 ##### Example
 
@@ -162,10 +163,10 @@ Use the username and password of the resource owner to obtain an access token.
 
 | Parameter   | Required | Description                    |
 |-------------|----------|--------------------------------|
-| `token_url` | [x]      | OAuth 2.0 Token URL            |
-| `username`  | [x]      | username of the resource owner |
-| `password`  | [x]      | password of the resource owner |
-| `token`     | [ ]      | OAuth 2.0 Token                |
+| `token_url` | Yes      | OAuth 2.0 Token URL            |
+| `username`  | Yes      | username of the resource owner |
+| `password`  | Yes      | password of the resource owner |
+| `token`     | No       | OAuth 2.0 Token                |
 
 ##### Example
 
