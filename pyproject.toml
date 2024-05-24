@@ -32,7 +32,6 @@ docs = [
 
 [project.urls]
 "Homepage" = "https://github.com/VITObelgium/aiohttp-oauth2-client"
-"Documentation" = "https://vitobelgium.github.io/aiohttp-oauth2-client/"
 "Source" = "https://github.com/VITObelgium/aiohttp-oauth2-client.git"
 "Issues" = "https://github.com/VITObelgium/aiohttp-oauth2-client/issues"
 
