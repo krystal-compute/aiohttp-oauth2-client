@@ -29,3 +29,7 @@ class OAuth2Client(aiohttp.ClientSession):
     ) -> ClientResponse:
         headers = await self.grant.prepare_request(headers)
         return await super()._request(method, str_or_url, headers=headers, **kwargs)
+
+    async def close(self) -> None:
+        await self.grant.close()
+        return await super().close()
