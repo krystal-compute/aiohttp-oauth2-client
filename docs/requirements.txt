@@ -1,0 +1,3 @@
+furo
+autodoc_pydantic
+sphinx-copybutton
