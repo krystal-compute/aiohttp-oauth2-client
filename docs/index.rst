@@ -5,8 +5,8 @@
 
 ``aiohttp-oauth2-client``: OAuth2 support for ``aiohttp`` client
 ================================================================
-This package adds support for OAuth 2.0 authorization to the ``ClientSession`` class of the ``aiohttp`` library.
-It handles retrieving access tokens and injects them in the Authorization header of HTTP requests as a Bearer token.
+This package adds support for OAuth 2.0 authorization to the :obj:`~aiohttp.ClientSession` class of the ``aiohttp`` library.
+It handles retrieving access tokens and injects them in the *Authorization* header of HTTP requests as a Bearer token.
 
 **Features**:
 
