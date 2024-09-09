@@ -1,3 +1,6 @@
 furo
 autodoc_pydantic
 sphinx-copybutton
+aiohttp~=3.8
+pydantic~=2.7
+yarl
