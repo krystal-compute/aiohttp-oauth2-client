@@ -1,5 +1,7 @@
 import os
 import sys
+from json import loads
+from pathlib import Path
 
 # Configuration file for the Sphinx documentation builder.
 #
@@ -63,3 +65,9 @@ html_theme_options = {
         },
     ],
 }
+
+html_context = {}
+
+ctx = Path(__file__).resolve().parent / "context.json"
+if ctx.is_file():
+    html_context.update(loads(ctx.open("r").read()))
