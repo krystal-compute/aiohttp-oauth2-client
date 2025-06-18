@@ -1,4 +1,3 @@
-from aiohttp import ClientSession
 from aioresponses import aioresponses
 
 from aiohttp_oauth2_client.grant.resource_owner_password_credentials import (
@@ -86,23 +85,25 @@ async def test_refresh_token(
         )
 
 
-async def test_client(mock_token: dict, mock_responses: aioresponses):
+async def test_client(mock_request, mock_token: dict, mock_responses: aioresponses):
     add_token_request(mock_responses, mock_token)
     async with ResourceOwnerPasswordCredentialsGrant(
         token_url=TOKEN_ENDPOINT, username=USERNAME, password=PASSWORD
-    ) as grant, ClientSession(middlewares=(OAuth2Middleware(grant),)) as client:
-        await assert_request_with_access_token(client, mock_token)
+    ) as grant:
+        mw = OAuth2Middleware(grant)
+        await assert_request_with_access_token(mw, mock_request, mock_token)
 
 
 async def test_client_refresh(
-    mock_token: dict, mock_token2, mock_responses: aioresponses
+    mock_request, mock_token: dict, mock_token2, mock_responses: aioresponses
 ):
     add_token_request(mock_responses, mock_token)
     add_token_request(mock_responses, mock_token2)
     async with ResourceOwnerPasswordCredentialsGrant(
         token_url=TOKEN_ENDPOINT, username=USERNAME, password=PASSWORD
-    ) as grant, ClientSession(middlewares=[OAuth2Middleware(grant)]) as client:
-        await assert_request_with_access_token(client, mock_token)
+    ) as grant:
+        mw = OAuth2Middleware(grant)
+        await assert_request_with_access_token(mw, mock_request, mock_token)
         grant.token.expires_at = 1  # set token to be expired
         assert grant.token.is_expired()
-        await assert_request_with_access_token(client, mock_token2)
+        await assert_request_with_access_token(mw, mock_request, mock_token2)
