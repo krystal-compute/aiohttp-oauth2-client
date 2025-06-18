@@ -1,11 +1,14 @@
-import pytest
-from aioresponses import aioresponses
-
-from aiohttp_oauth2_client.client import OAuth2Client
-from .mock.webbrowser import mock_browser_side_effect
-from .constants import TEST_URL, TOKENS
 import asyncio
+
 import nest_asyncio
+import pytest
+from aiohttp import ClientRequest
+from aioresponses import aioresponses
+from multidict import CIMultiDict
+
+from aiohttp_oauth2_client.middleware import OAuth2Middleware
+from .constants import TOKENS
+from .mock.webbrowser import mock_browser_side_effect
 
 nest_asyncio.apply()
 
@@ -48,16 +51,15 @@ async def mock_browser(mocker):
     return browser
 
 
-async def assert_request_with_access_token(
-    client: OAuth2Client, token: dict, responses: aioresponses
-):
-    # add mock response
-    responses.get(TEST_URL, status=200, body="Hello!")
-    response = await client.get(TEST_URL)
-    assert response.status == 200
+@pytest.fixture
+async def mock_request(mocker) -> ClientRequest:
+    request = mocker.MagicMock(spec=ClientRequest)
+    request.headers = CIMultiDict()
+    return request
 
-    responses.assert_called_with(
-        url=TEST_URL,
-        method="GET",
-        headers={"Authorization": f"Bearer {token['access_token']}"},
-    )
+
+async def assert_request_with_access_token(
+    oauth2_middleware: OAuth2Middleware, request: ClientRequest, token: dict
+):
+    await oauth2_middleware.authenticate(request)
+    assert request.headers["Authorization"] == f"Bearer {token['access_token']}"

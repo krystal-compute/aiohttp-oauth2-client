@@ -1,8 +1,8 @@
 from aioresponses import aioresponses
 from yarl import URL
 
-from aiohttp_oauth2_client.client import OAuth2Client
 from aiohttp_oauth2_client.grant.device_code import DeviceCodeGrant
+from aiohttp_oauth2_client.middleware import OAuth2Middleware
 from aiohttp_oauth2_client.models.response import (
     DeviceAuthorizationResponse,
     ErrorResponse,
@@ -146,19 +146,20 @@ async def test_pkce(mock_token: dict, mock_responses: aioresponses):
         )
 
 
-async def test_client(mock_token: dict, mock_responses: aioresponses):
+async def test_client(mock_request, mock_token: dict, mock_responses: aioresponses):
     add_device_authorization_request(mock_responses, device_authorization_response)
     add_token_request(mock_responses, mock_token)
     async with DeviceCodeGrant(
         token_url=TOKEN_ENDPOINT,
         device_authorization_url=DEVICE_AUTHORIZATION_ENDPOINT,
         client_id=CLIENT_ID,
-    ) as grant, OAuth2Client(grant) as client:
-        await assert_request_with_access_token(client, mock_token, mock_responses)
+    ) as grant:
+        mw = OAuth2Middleware(grant)
+        await assert_request_with_access_token(mw, mock_request, mock_token)
 
 
 async def test_client_refresh(
-    mock_token: dict, mock_token2: dict, mock_responses: aioresponses
+    mock_request, mock_token: dict, mock_token2: dict, mock_responses: aioresponses
 ):
     add_device_authorization_request(mock_responses, device_authorization_response)
     add_token_request(mock_responses, mock_token)
@@ -167,8 +168,9 @@ async def test_client_refresh(
         token_url=TOKEN_ENDPOINT,
         device_authorization_url=DEVICE_AUTHORIZATION_ENDPOINT,
         client_id=CLIENT_ID,
-    ) as grant, OAuth2Client(grant) as client:
-        await assert_request_with_access_token(client, mock_token, mock_responses)
+    ) as grant:
+        mw = OAuth2Middleware(grant)
+        await assert_request_with_access_token(mw, mock_request, mock_token)
         grant.token.expires_at = 1
         assert grant.token.is_expired()
-        await assert_request_with_access_token(client, mock_token2, mock_responses)
+        await assert_request_with_access_token(mw, mock_request, mock_token2)

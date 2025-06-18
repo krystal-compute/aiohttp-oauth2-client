@@ -3,7 +3,6 @@ from abc import abstractmethod
 from typing import Optional, Union
 
 import aiohttp
-from aiohttp.typedefs import LooseHeaders
 from pydantic import ValidationError
 from yarl import URL
 
@@ -56,14 +55,13 @@ class OAuth2Grant:
             if self.token.is_expired():
                 await self.refresh_token()
 
-    async def prepare_request(self, headers: Optional[LooseHeaders]):
+    async def prepare_headers(self):
         """
-        Prepare the HTTP request by adding the OAuth 2.0 access token to the Authorization header.
+        Prepare the HTTP request headers by adding the OAuth 2.0 access token to the Authorization header.
 
-        :param headers: HTTP request headers
-        :return: updated HTTP request headers
+        :return: HTTP request headers with Authorization header
         """
-        headers = dict(headers) if headers else {}
+        headers = {}
         async with self.lock:
             if not self.token:
                 # request initial token

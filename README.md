@@ -25,15 +25,16 @@ pip install aiohttp-oauth2-client
 
 ## Usage
 
-Begin by importing the relevant modules, like the OAuth2 client and grant. Also import `asyncio` for running async code:
+Begin by importing the relevant modules, like the OAuth2 client middleware and grant. Also import `asyncio` for running async code:
 
 ```python
 import asyncio
-from aiohttp_oauth2_client.client import OAuth2Client
+from aiohttp import ClientSession
+from aiohttp_oauth2_client.middleware import OAuth2Middleware
 from aiohttp_oauth2_client.grant.device_code import DeviceCodeGrant
 ```
 
-Then create an `OAuth2Grant` and `OAuth2Client` object and perform a HTTP request to a protected resource. We use the
+Then create an `OAuth2Grant` and `OAuth2Middleware` object and perform a HTTP request to a protected resource. We use the
 Device Code grant in this example:
 
 ```python
@@ -43,7 +44,7 @@ async def main():
             device_authorization_url=DEVICE_AUTHORIZATION_URL,
             client_id=CLIENT_ID,
             pkce=True
-    ) as grant, OAuth2Client(grant) as client:
+    ) as grant, ClientSession(middlewares=(OAuth2Middleware(grant),)) as client:
         async with client.get(PROTECTED_ENDPOINT) as response:
             assert response.ok
             print(await response.text())
@@ -78,7 +79,8 @@ access token.
 ##### Example
 
 ```python
-from aiohttp_oauth2_client.client import OAuth2Client
+from aiohttp import ClientSession
+from aiohttp_oauth2_client.middleware import OAuth2Middleware
 from aiohttp_oauth2_client.grant.authorization_code import AuthorizationCodeGrant
 
 ...
@@ -88,7 +90,7 @@ async with AuthorizationCodeGrant(
         authorization_url="https://sso.example.com/oauth2/auth",
         client_id="public",
         pkce=True
-) as grant, OAuth2Client(grant) as client:
+) as grant, ClientSession(middlewares=(OAuth2Middleware(grant),)) as client:
     ...
 ```
 
@@ -108,7 +110,8 @@ Use client credentials to obtain an access token.
 ##### Example
 
 ```python
-from aiohttp_oauth2_client.client import OAuth2Client
+from aiohttp import ClientSession
+from aiohttp_oauth2_client.middleware import OAuth2Middleware
 from aiohttp_oauth2_client.grant.client_credentials import ClientCredentialsGrant
 
 ...
@@ -117,7 +120,7 @@ async with ClientCredentialsGrant(
         token_url="https://sso.example.com/oauth2/token",
         client_id="my-client",
         client_secret="top-secret"
-) as grant, OAuth2Client(grant) as client:
+) as grant, ClientSession(middlewares=(OAuth2Middleware(grant),)) as client:
     ...
 ```
 
@@ -141,7 +144,8 @@ and browser capabilities to complete the user interaction.
 ##### Example
 
 ```python
-from aiohttp_oauth2_client.client import OAuth2Client
+from aiohttp import ClientSession
+from aiohttp_oauth2_client.middleware import OAuth2Middleware
 from aiohttp_oauth2_client.grant.device_code import DeviceCodeGrant
 
 ...
@@ -151,7 +155,7 @@ async with DeviceCodeGrant(
         device_authorization_url="https://sso.example.com/oauth2/auth/device",
         client_id="public",
         pkce=True
-) as grant, OAuth2Client(grant) as client:
+) as grant, ClientSession(middlewares=(OAuth2Middleware(grant),)) as client:
     ...
 ```
 
@@ -171,7 +175,8 @@ Use the username and password of the resource owner to obtain an access token.
 ##### Example
 
 ```python
-from aiohttp_oauth2_client.client import OAuth2Client
+from aiohttp import ClientSession
+from aiohttp_oauth2_client.middleware import OAuth2Middleware
 from aiohttp_oauth2_client.grant.resource_owner_password_credentials import ResourceOwnerPasswordCredentialsGrant
 
 ...
@@ -181,7 +186,7 @@ async with ResourceOwnerPasswordCredentialsGrant(
         username="username",
         password="password123",
         client_id="public"
-) as grant, OAuth2Client(grant) as client:
+) as grant, ClientSession(middlewares=(OAuth2Middleware(grant),)) as client:
     ...
 ```
 

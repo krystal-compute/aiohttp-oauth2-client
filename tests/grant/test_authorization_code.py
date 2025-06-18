@@ -1,8 +1,8 @@
 from aioresponses import aioresponses
 from yarl import URL
 
-from aiohttp_oauth2_client.client import OAuth2Client
 from aiohttp_oauth2_client.grant.authorization_code import AuthorizationCodeGrant
+from aiohttp_oauth2_client.middleware import OAuth2Middleware
 from ..conftest import assert_request_with_access_token
 from ..constants import TOKEN_ENDPOINT, AUTHORIZATION_ENDPOINT
 from ..mock.response import add_token_request
@@ -108,19 +108,26 @@ async def test_pkce(mock_token: dict, mock_responses: aioresponses, mock_browser
         )
 
 
-async def test_client(mock_token: dict, mock_responses: aioresponses, mock_browser):
+async def test_client(
+    mock_request, mock_token: dict, mock_responses: aioresponses, mock_browser
+):
     add_token_request(mock_responses, mock_token)
     async with AuthorizationCodeGrant(
         token_url=TOKEN_ENDPOINT,
         authorization_url=AUTHORIZATION_ENDPOINT,
         client_id=CLIENT_ID,
         _web_server_port=8080,
-    ) as grant, OAuth2Client(grant) as client:
-        await assert_request_with_access_token(client, mock_token, mock_responses)
+    ) as grant:
+        mw = OAuth2Middleware(grant)
+        await assert_request_with_access_token(mw, mock_request, mock_token)
 
 
 async def test_client_refresh(
-    mock_token: dict, mock_token2: dict, mock_responses: aioresponses, mock_browser
+    mock_request,
+    mock_token: dict,
+    mock_token2: dict,
+    mock_responses: aioresponses,
+    mock_browser,
 ):
     add_token_request(mock_responses, mock_token)
     add_token_request(mock_responses, mock_token2)
@@ -129,8 +136,13 @@ async def test_client_refresh(
         authorization_url=AUTHORIZATION_ENDPOINT,
         client_id=CLIENT_ID,
         _web_server_port=8080,
-    ) as grant, OAuth2Client(grant) as client:
-        await assert_request_with_access_token(client, mock_token, mock_responses)
+    ) as grant:
+        oauth2_middleware = OAuth2Middleware(grant)
+        await assert_request_with_access_token(
+            oauth2_middleware, mock_request, mock_token
+        )
         grant.token.expires_at = 1
         assert grant.token.is_expired()
-        await assert_request_with_access_token(client, mock_token2, mock_responses)
+        await assert_request_with_access_token(
+            oauth2_middleware, mock_request, mock_token2
+        )

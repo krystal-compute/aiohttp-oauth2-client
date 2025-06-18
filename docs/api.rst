@@ -11,6 +11,6 @@ API
 .. toctree::
     :maxdepth: 3
 
-    api.client
+    api.middleware
     api.grant
     api.models

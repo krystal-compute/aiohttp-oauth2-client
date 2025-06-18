@@ -7,11 +7,12 @@ Getting started
 Begin by importing the relevant modules, like the OAuth2 client and grant. Also import ``asyncio`` for running async code::
 
     import asyncio
-    from aiohttp_oauth2_client.client import OAuth2Client
+    from aiohttp import ClientSession
+    from aiohttp_oauth2_client.middleware import OAuth2Middleware
     from aiohttp_oauth2_client.grant.device_code import DeviceCodeGrant
 
 
-Then create an :obj:`~aiohttp_oauth2_client.grant.common.OAuth2Grant` and :obj:`~aiohttp_oauth2_client.client.OAuth2Client` object and perform a HTTP request to a protected resource. We use the
+Then create an :obj:`~aiohttp_oauth2_client.grant.common.OAuth2Grant` and :obj:`~aiohttp_oauth2_client.middleware.OAuth2Middleware` object and perform a HTTP request to a protected resource. We use the
 Device Code grant in this example::
 
     async def main():
@@ -20,7 +21,7 @@ Device Code grant in this example::
                 device_authorization_url=DEVICE_AUTHORIZATION_URL,
                 client_id=CLIENT_ID,
                 pkce=True
-        ) as grant, OAuth2Client(grant) as client:
+        ) as grant, ClientSession(middlewares=(OAuth2Middleware(grant),)) as client:
             async with client.get(PROTECTED_ENDPOINT) as response:
                 assert response.ok
                 print(await response.text())

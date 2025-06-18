@@ -1,8 +1,8 @@
 import pytest
 from aioresponses import aioresponses
 
-from aiohttp_oauth2_client.client import OAuth2Client
 from aiohttp_oauth2_client.grant.client_credentials import ClientCredentialsGrant
+from aiohttp_oauth2_client.middleware import OAuth2Middleware
 from ..conftest import assert_request_with_access_token
 from ..constants import TOKEN_ENDPOINT
 from ..mock.response import add_token_request
@@ -88,17 +88,20 @@ class TestClientCredentialsGrant:
                 },
             )
 
-    async def test_client(self, mock_token: dict, mock_responses: aioresponses):
+    async def test_client(
+        self, mock_request, mock_token: dict, mock_responses: aioresponses
+    ):
         add_token_request(mock_responses, mock_token)
         async with ClientCredentialsGrant(
             token_url=TOKEN_ENDPOINT,
             client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
-        ) as grant, OAuth2Client(grant) as client:
-            await assert_request_with_access_token(client, mock_token, mock_responses)
+        ) as grant:
+            mw = OAuth2Middleware(grant)
+            await assert_request_with_access_token(mw, mock_request, mock_token)
 
     async def test_client_refresh(
-        self, mock_token: dict, mock_token2, mock_responses: aioresponses
+        self, mock_request, mock_token: dict, mock_token2, mock_responses: aioresponses
     ):
         add_token_request(mock_responses, mock_token)
         add_token_request(mock_responses, mock_token2)
@@ -106,8 +109,9 @@ class TestClientCredentialsGrant:
             token_url=TOKEN_ENDPOINT,
             client_id=CLIENT_ID,
             client_secret=CLIENT_SECRET,
-        ) as grant, OAuth2Client(grant) as client:
-            await assert_request_with_access_token(client, mock_token, mock_responses)
+        ) as grant:
+            mw = OAuth2Middleware(grant)
+            await assert_request_with_access_token(mw, mock_request, mock_token)
             grant.token.expires_at = 1  # set token to be expired
             assert grant.token.is_expired()
-            await assert_request_with_access_token(client, mock_token2, mock_responses)
+            await assert_request_with_access_token(mw, mock_request, mock_token2)
