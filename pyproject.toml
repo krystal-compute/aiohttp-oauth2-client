@@ -6,7 +6,7 @@ authors = [{name = "Stijn Caerts", email = "stijn.caerts@vito.be"}]
 readme = "README.md"
 keywords = ["oauth2", "aiohttp"]
 dependencies = [
-    "aiohttp~=3.12.0",
+    "aiohttp~=3.12",
     "pydantic~=2.7",
     "rich"
 ]
