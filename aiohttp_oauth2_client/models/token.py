@@ -42,7 +42,7 @@ class Token(BaseModel):
         """
         if isinstance(data, dict):
             if "expires_at" not in data:
-                data["expires_at"] = int(time.time()) + data["expires_in"]
+                data["expires_at"] = int(time.time()) + int(data["expires_in"])
         return data
 
     def is_expired(self, early_expiry: int = 30) -> bool:
